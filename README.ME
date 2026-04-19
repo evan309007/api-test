@@ -1,0 +1,388 @@
+ API RESTful - API para Gestión de Recursos con Datos Curiosos (chistes chuck norris)
+
+API desarrollada en Flask que implementa operaciones CRUD completas sobre recursos, integrando una fuente externa de datos curiosos (Chuck Norris API) con traducción automática al español. Diseñada como proyecto de aprendizaje para la materia de Sistemas de Información.
+
+ Descripción
+
+Esta API permite gestionar recursos (crear, leer, actualizar y eliminar) y enriquece cada recurso creado con un dato curioso obtenido de una API externa. Los datos curiosos (chistes de Chuck Norris) se obtienen en inglés desde `api.chucknorris.io` y se traducen automáticamente al español utilizando la librería `deep-translator`.
+
+  Características principales:
+- CRUD completo de recursos
+- Integración con API externa de datos curiosos (chistes chuck norris ing-esp)
+- Traducción automática de inglés a español (deep-translator)
+- Manejo de errores con códigos HTTP apropiados (200, 201, 400, 404)
+- Almacenamiento en memoria (ideal para pruebas y desarrollo)
+
+ Requisitos
+
+- **Python**: Versión 3.11 o superior (compatible con Python 3.13)
+- **Pip**: Administrador de paquetes de Python
+- **Postman** : Para pruebas de endpoints
+
+ Dependencias principales
+
+ Flask  3.0+  Framework web 
+ requests  2.31+  Consumo de API externa 
+ python-dotenv  1.0+  Manejo de variables de entorno 
+ deep-translator  1.11+  Traducción de textos 
+
+
+
+   1.- Instalación y Configuración
+
+     1.1 Crear y activar entorno virtual
+
+    Windows:
+        consola
+
+        python -m venv venv
+        venv\Scripts\activate
+
+
+    Mac / Linux:
+        consola
+
+        python3 -m venv venv
+        source venv/bin/activate
+
+
+    1.2 Instalacion de dependencias
+        consola
+
+        pip install flask requests python-dotenv deep-translator
+
+
+    1.3 Estructura del proyecto
+
+        mi-api-flask/
+        │
+        ├── api/
+        │   ├── main.py          # Código principal de la API
+        │   └── bd.py            # Base de datos en memoria
+        ├── .env                 # Variables de entorno
+        ├── README.ME            # documentacion    
+        └── requirements.txt     # Dependencias
+ 
+ 
+    1.4 Configurar variables de entorno
+
+        Crea un archivo .env en la raíz del proyecto:
+
+        API Key para futuras integraciones 
+        API_NINJAS_KEY=ID PERSONAL DE API-NINJA
+
+
+    1.5 Ejecutar la API
+
+       python api/main.py
+
+
+       Salida esperada:
+
+       * Debug mode: on
+       * Running on http://localhost:5000
+         Press CTRL+C to quit
+       * Restarting with stat
+         API Key cargada: xxxxx...
+       * Debugger is active!
+       * Debugger PIN: xxx-xxx-xxx
+
+2 Endpoints de la API
+
+    2.1 Obtener dato curioso (chiste traducido)
+
+        GET /api/chiste
+        Respuesta exitosa (200 OK)
+        
+        {
+           "fuente": "Chuck Norris API (traducido)",
+           "hecho_original": "Chuck Norris can divide by zero.",
+           "hecho": "Chuck Norris puede dividir por cero."
+        }
+
+     Respuesta de error (500 Internal Server Error)
+
+        {
+           "error": "Error de conexión: HTTPSConnectionPool..."
+        }
+    
+    2.2 Listar todos los recursos
+
+           GET /api/recursos
+           Respuesta exitosa (200 OK)
+
+         [
+           {
+             "id": 1,
+              "nombre": "Mi primer recurso",
+              "descripcion": "Aprendiendo Flask"
+           },
+           {
+             "id": 2,
+             "nombre": "Segundo recurso",
+             "descripcion": "Probando la API"
+           }
+         ]
+
+    2.3 Obtener un recurso específico
+
+           GET /api/recursos/{id}
+           Parámetros
+           Nombre	Tipo	  Ubicación 	Requerido	Descripción
+           id	    integer	  URL	        Sí	        ID del recurso
+
+        Respuesta exitosa (200 OK)
+
+           {
+             "id": 1,
+             "nombre": "Mi primer recurso",
+             "descripcion": "Aprendiendo Flask"
+           }
+
+        Respuesta de error (404 Not Found)
+
+           {
+              "error": "Recurso no encontrado"
+           }
+
+    2.4 Crear un nuevo recurso
+
+        POST /api/recursos
+              Headers requeridos
+
+              Content-Type: application/json
+
+        Body 
+
+            {
+              "nombre": "Nuevo recurso",
+              "descripcion": "Descripción del recurso"
+            }
+
+               Campo	    Tipo	Requerido	Descripción
+              nombre	    string	Sí	        Nombre del recurso
+              descripcion	string	No	        Descripción (vacío si no se envía)
+
+        Respuesta exitosa (201 Created)
+
+            {
+              "id": 3,
+              "nombre": "Nuevo recurso",
+              "descripcion": "Descripción del recurso"
+            }
+
+        Respuestas de error
+
+            400 Bad Request - Falta campo nombre
+
+            {
+              "error": "El campo 'nombre' es obligatorio"
+            }
+
+            400 Bad Request - JSON inválido
+
+            {
+              "error": "El cuerpo debe ser JSON"
+            }
+
+    2.5 Actualizar un recurso
+
+        PUT /api/recursos/{id}
+             Headers requeridos
+
+            Content-Type: application/json
+
+            Body
+
+            {
+              "nombre": "Nombre actualizado",
+              "descripcion": "Descripción modificada"
+            }
+
+        Respuesta exitosa (200 OK)
+
+
+            {
+               "id": 1,
+               "nombre": "Nombre actualizado",
+               "descripcion": "Descripción modificada"
+            }
+
+        Respuesta de error (404 Not Found)
+
+
+            {
+              "error": "Recurso no encontrado"
+            }
+
+    2.6 Eliminar un recurso
+
+        DELETE /api/recursos/{id}
+             Respuesta exitosa (200 OK)
+
+            {
+              "mensaje": "Recurso eliminado correctamente"
+            }
+
+        Respuesta de error (404 Not Found)
+
+            {
+              "error": "Recurso no encontrado"
+            }
+
+
+3   Resumen de códigos de estado
+ 
+              Código	Significado	                                 Endpoints donde ocurre
+               200	    OK - Éxito	                                 GET, PUT, DELETE
+               201	    Created - Recurso creado	                 POST
+               400	    Bad Request - Error en la solicitud	         POST, PUT
+               404	    Not Found - Recurso no existe	             GET, PUT, DELETE
+               405	    Method Not Allowed - Método no permitido	 Cualquiera
+               500	    Internal Server Error - Error del servidor	 GET /api/chiste
+
+4 Pruebas recomendadas con Postman
+    Configuración inicial
+
+        Abrir Postman
+
+        Crear una nueva colección llamada "API Recursos"
+
+        Configurar variable de entorno (opcional):
+
+             base_url: http://127.0.0.1:5000
+
+             Secuencia de pruebas sugerida
+                   Orden	    Método	     URL 	              Body         	                          Código esperado
+                   1	         GET	     /api/recursos	      -	                                      200 (lista vacía)
+                   2	         GET	     /api/chiste	      -	                                      200 (chiste traducido)
+                   3	         POST	     /api/recursos	      {"nombre":"Test 1"}                     201
+                   4	         POST	     /api/recursos	 {"nombre":"Test 2","descripcion":"Ejemplo"}  201
+                   5	         GET	     /api/recursos	      -	                                      200 (lista con 2 elementos)
+                   6	         GET	     /api/recursos/1	  -	                                      200
+                   7	         PUT	     /api/recursos/1	  {"nombre":"Actualizado"}	              200
+                   8	         DELETE	     /api/recursos/2	  -	                                      200
+                   9	         GET	     /api/recursos/2	  -	                                      404
+
+    Pruebas de error
+                 Método	    URL      	    Body                  	          Código esperado
+                 POST	   /api/recursos	{"descripcion":"sin nombre"}	  400
+                 POST	   /api/recursos	(texto plano)	                  400
+                 GET	   /api/recursos/999	-	                          404
+                 PUT	   /api/recursos	(cualquiera)	                  405
+
+
+5 Estructura del código
+
+     main.py - Endpoints principales
+
+         # IMPORTS
+         from flask import Flask, jsonify, request
+         import os
+         from dotenv import load_dotenv
+         import requests
+         from deep_translator import GoogleTranslator
+
+         # CONFIGURACIÓN
+         load_dotenv()
+         app = Flask(__name__)
+
+         # FUNCIONES AUXILIARES
+         def obtener_chiste():
+         # Obtiene y traduce chiste de Chuck Norris
+
+         # ENDPOINTS
+           @app.route('/api/chiste', methods=['GET'])
+           @app.route('/api/recursos', methods=['GET'])
+           @app.route('/api/recursos/<int:recurso_id>', methods=['GET'])
+           @app.route('/api/recursos', methods=['POST'])
+           @app.route('/api/recursos/<int:recurso_id>', methods=['PUT'])
+           @app.route('/api/recursos/<int:recurso_id>', methods=['DELETE'])
+
+
+     bd.py - Base de datos en memoria
+
+         recursos = {}   Diccionario {id: recurso}
+         next_id = 1     Auto-incremento de IDs
+
+6 Notas de entrega
+
+     Consideraciones importantes
+
+         Almacenamiento en memoria
+
+             Los datos se pierden al detener el servidor.
+
+             Para persistencia real, implementar una base de datos (SQLite, PostgreSQL).
+
+
+         Traducción
+
+             La librería deep-translator requiere conexión a internet.
+
+             Sin conexión, el endpoint /api/chiste devolverá error.
+
+
+         API externa
+
+             api.chucknorris.io es gratuita y no requiere autenticación.
+
+             Tiene límites de rate, pero suficientes para pruebas educativas.
+
+
+         Puerto predeterminado
+
+             La API corre en el puerto 5000.
+
+             Si está ocupado, cambiar en app.run(port=5001).
+
+
+         Criterios de evaluación cubiertos
+
+             CRUD completo (Crear, Leer, Actualizar, Eliminar)
+
+             Integración con API externa
+
+             Traducción de textos (inglés → español)
+
+             Manejo de errores con códigos HTTP
+
+             Código estructurado y documentado
+
+             Endpoints independientes y funcionales
+
+
+         Posibles mejoras futuras
+
+             Conexión a base de datos persistente (SQLite/PostgreSQL)
+
+             Autenticación con JWT tokens
+
+             Paginación en GET /api/recursos
+
+             Filtros de búsqueda (por nombre, por ID)
+
+             Documentación interactiva con Swagger/OpenAPI
+
+             Pruebas unitarias con pytest
+
+             Despliegue en la nube (Render, PythonAnywhere)
+
+7 Solución de problemas comunes
+             Problema	                Posible causa	                    Solución
+             ModuleNotFoundError	    Falta instalar dependencias	        pip install -r requirements.txt
+             Address already in use	    Puerto 5000 ocupado	                Cambiar puerto en app.run()
+             Error de traducción	    Sin conexión a internet	            Verificar red
+             405 Method Not Allowed	    Método HTTP incorrecto	            Verificar tabla de endpoints
+             El chiste no se traduce    API de Google traductor	            Reintentar o verificar conexión
+
+
+8 Autor
+
+     Desarrollado por EVAN INC como proyecto de aprendizaje para la materia de Sistemas de Información.
+
+9 Licencia
+
+     Proyecto educativo - Uso libre para fines de aprendizaje.
+
+10 Repositorio GitHub: 
