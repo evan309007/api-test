@@ -3,21 +3,24 @@ from flask import Flask, jsonify, request
 import os
 from dotenv import load_dotenv
 import requests
+from deep_translator import GoogleTranslator
+from bd import recursos, next_id
+import bd
 
 load_dotenv()
 
 app = Flask(__name__)
 
 # Importar base de datos en memoria
-from bd import recursos, next_id
-import bd
 
 
-#API_NINJAS_KEY = os.getenv("API_NINJAS_KEY")
-#API_URL = "https://api.api-ninjas.com/v1/facts?limit=1" 
+
+API_NINJAS_KEY = os.getenv("API_NINJAS_KEY")
+API_URL = "https://api.api-ninjas.com/v1/facts?limit=1" 
 
 #print(f"API Key cargada: {API_NINJAS_KEY[:5]}...")
 
+@app.route('/api/hechos', methods=['GET'])
 def obtener_hecho_curioso():
     """Obtiene un hecho curioso desde API pública de Chuck Norris (sin autenticación)"""
     try:
@@ -39,7 +42,7 @@ def obtener_hecho_curioso():
     except Exception as e:
         return {"error": f"Error de conexión: {str(e)}"}
     
-from deep_translator import GoogleTranslator
+
 
 def obtener_hecho_curioso():
     """Obtiene chiste de Chuck Norris y lo traduce al español"""
@@ -142,7 +145,6 @@ def eliminar_recurso(recurso_id):
     return jsonify({"mensaje": "Recurso eliminado correctamente"}), 200
 
 
-# Ruta adicional de prueba que consume la API externa directamente
 @app.route('/api/hecho-curioso', methods=['GET'])
 def hecho_curioso():
     """Endpoint que devuelve un hecho curioso"""
