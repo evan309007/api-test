@@ -3,44 +3,21 @@ from flask import Flask, jsonify, request
 import os
 from dotenv import load_dotenv
 import requests
+from deep_translator import GoogleTranslator
+from bd import recursos, next_id
+import bd
 
 load_dotenv()
 
 app = Flask(__name__)
 
-# Importar base de datos en memoria
-from bd import recursos, next_id
-import bd
 
+API_NINJAS_KEY = os.getenv("API_NINJAS_KEY")
+API_URL = "https://api.api-ninjas.com/v1/facts?limit=1" 
 
-#API_NINJAS_KEY = os.getenv("API_NINJAS_KEY")
-#API_URL = "https://api.api-ninjas.com/v1/facts?limit=1" 
+print(f"API Key cargada: {API_NINJAS_KEY[:5]}...")
 
-#print(f"API Key cargada: {API_NINJAS_KEY[:5]}...")
-
-def obtener_hecho_curioso():
-    """Obtiene un hecho curioso desde API pública de Chuck Norris (sin autenticación)"""
-    try:
-        # API pública de Chuck Norris 
-        url = "https://api.chucknorris.io/jokes/random"
-        response = requests.get(url, timeout=10)
-        
-        print(f"[DEBUG] Status Chuck Norris API: {response.status_code}")
-        
-        if response.status_code == 200:
-            data = response.json()
-            return {
-                "fuente": "Chuck Norris API",
-                "hecho": data["value"],
-                "id": data["id"]
-            }
-        else:
-            return {"error": f"Error en API externa: {response.status_code}"}
-    except Exception as e:
-        return {"error": f"Error de conexión: {str(e)}"}
-    
-from deep_translator import GoogleTranslator
-
+@app.route('/api/chiste', methods=['GET'])
 def obtener_hecho_curioso():
     """Obtiene chiste de Chuck Norris y lo traduce al español"""
     try:
@@ -56,17 +33,15 @@ def obtener_hecho_curioso():
             traductor = GoogleTranslator(source='en', target='es')
             joke_es = traductor.translate(joke_en)
             
-            return {
+            return jsonify({
                 "fuente": "Chuck Norris API (traducido)",
                 "hecho_original": joke_en,
                 "hecho": joke_es
-            }
+            }), 200
         else:
-            return {"error": f"Error {response.status_code}"}
+            return jsonify({"error": f"Error {response.status_code}"}), 500
     except Exception as e:
-        return {"error": f"Error: {str(e)}"}
-    
-# --------------------- ENDPOINTS CRUD ---------------------
+        return jsonify({"error": f"Error: {str(e)}"}), 500
 
 @app.route('/api/recursos', methods=['GET'])
 def listar_recursos():
@@ -103,7 +78,6 @@ def crear_recurso():
         "id": nuevo_id,
         "nombre": data["nombre"],
         "descripcion": data.get("descripcion", ""),
-        "hecho_curioso": obtener_hecho_curioso()
     }
 
     recursos[nuevo_id] = nuevo_recurso
@@ -142,11 +116,6 @@ def eliminar_recurso(recurso_id):
     return jsonify({"mensaje": "Recurso eliminado correctamente"}), 200
 
 
-# Ruta adicional de prueba que consume la API externa directamente
-@app.route('/api/hecho-curioso', methods=['GET'])
-def hecho_curioso():
-    """Endpoint que devuelve un hecho curioso"""
-    return jsonify(obtener_hecho_curioso()), 200
-
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
+    
